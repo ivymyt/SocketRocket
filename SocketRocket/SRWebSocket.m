@@ -696,11 +696,12 @@ static __strong NSData *CRLFCRLF;
     [self assertOnWorkQueue];
 
     if (_closeWhenFinishedWriting) {
-            return;
+        return;
     }
     [_outputBuffer appendData:data];
     [self _pumpWriting];
 }
+
 - (void)send:(id)data;
 {
     NSAssert(self.readyState != SR_CONNECTING, @"Invalid State: Cannot call send: until connection is open");
@@ -1060,8 +1061,8 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
     if (dataLength - _outputBufferOffset > 0 && _outputStream.hasSpaceAvailable) {
         NSInteger bytesWritten = [_outputStream write:_outputBuffer.bytes + _outputBufferOffset maxLength:dataLength - _outputBufferOffset];
         if (bytesWritten == -1) {
-            [self _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:2145 userInfo:[NSDictionary dictionaryWithObject:@"Error writing to stream" forKey:NSLocalizedDescriptionKey]]];
-             return;
+            [self _failWithError:[NSError errorWithDomain:SRWebSocketErrorDomain code:2145 userInfo:[NSDictionary dictionaryWithObject:@"Error writing to stream" forKey:NSLocalizedDescriptionKey]]];
+            return;
         }
         
         _outputBufferOffset += bytesWritten;
@@ -1335,7 +1336,7 @@ static const size_t SRFrameHeaderOverhead = 32;
 #endif
     
     if (useMask) {
-    // set the mask and header
+        // set the mask and header
         frame_buffer[1] |= SRMaskMask;
     }
     
@@ -1413,7 +1414,7 @@ static const size_t SRFrameHeaderOverhead = 32;
             if (!_pinnedCertFound) {
                 dispatch_async(_workQueue, ^{
                     NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : @"Invalid server cert" };
-                    [weakSelf _failWithError:[NSError errorWithDomain:@"org.lolrus.SocketRocket" code:23556 userInfo:userInfo]];
+                    [weakSelf _failWithError:[NSError errorWithDomain:SRWebSocketErrorDomain code:23556 userInfo:userInfo]];
                 });
                 return;
             }
